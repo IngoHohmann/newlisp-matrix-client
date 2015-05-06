@@ -63,21 +63,21 @@
 ; This starts polling the event-stream, and prints out all messages to the console.
 ; Use ctrl+c to stop
 
- ; join a room
- (join-room "#matrix-dev@matrix.org)
+; join a room
+(join-room "#matrix-dev@matrix.org)
 
- ; enter a room you have already joined
- (enter "#matrix:matrix.org")
- ; in both cases the room will be the current room
+; enter a room you have already joined
+(enter "#matrix:matrix.org")
+; in both cases the room will be the current room
 
 ; send messages in the current room
- (message "test")
- (emote   "feels great :-)")
- (notice  "... but that may just be me ...")
+(message "test")
+(emote   "feels great :-)")
+(notice  "... but that may just be me ...")
 
- ; cli
- ; this will probably change
- newlisp matrix.lsp send "here comes the sun"
+; cli
+; this will probably change
+newlisp matrix.lsp send "here comes the sun"
 </code></pre>
 
 <h2>
