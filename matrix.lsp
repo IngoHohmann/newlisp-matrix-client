@@ -339,6 +339,7 @@ t stat(define (save-my force)
 	(join (list "{" {"type":"m.login.password","user":"} user {","password":"} pass {"} "}")))
 
 (define (message-json msg (type "m.text"))
+	(replace "\n" msg "\\n")
 	(join (list "{\"msgtype\":\"" type "\",\"body\":\"" msg "\"}")))
 
 (define (displayname-json name)
@@ -626,7 +627,6 @@ t stat(define (save-my force)
 
 (define (send-message message (msgtype "m.text") (type "m.room.message") (room_id (my "room")) json-string)
 	"send different types of messages"
-	(replace message "\n" "\\n")
 	(set 'room_id (or room_id (my "room")))
 	(set 'type (or type "m.room.message"))
 	(set 'msgtype (or msgtype "m.text"))
@@ -636,21 +636,22 @@ t stat(define (save-my force)
 
 (define (emote message (room_id (my "room")))
 	"send an m.emote message"
-	(replace message "\n" "\\n")
+	;(replace message "\n" "\\n")
 	(unless room_id (set 'room_id (my "room")))
 	(send-message message "m.emote" "m.room.message" room_id))
 
 (define (notice message (room_id (my "room")))
 	"send an m.emote message"
-	(replace message "\n" "\\n")
+	;(replace message "\n" "\\n")
 	(unless room_id (set 'room_id (my "room")))
 	(send-message message "m.notice" "m.room.message" room_id))
 
 (define (message message (room_id (my "room")))
 	"Send a text message to the room or current-room"
-	(replace message "\n" "\\n")
+	;(replace message "\n" "\\n")
 	(unless room_id (set 'room_id (my "room")))
-	(api-post (append "rooms/" room_id "/send/m.room.message") (message-json message)))
+	(send-message message "m.text" "m.room.message" room_id))
+	;(api-post (append "rooms/" room_id "/send/m.room.message") (message-json message)))
 
 (define (messages room-id from to limit backwards)
 	"read message stream, return m.room.message messages"
