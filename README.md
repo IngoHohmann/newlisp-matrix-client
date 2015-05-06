@@ -27,15 +27,32 @@ Example Usage
 
     ; listen for the event stream, print all messages in all rooms
     (poll-events filt-messages)
+    ; This starts polling the event-stream, and prints out all messages to the console.
+    ; Use ctrl+c to stop
+
+	 ; join a room
+	 (join-room "#matrix-dev@matrix.org)
+
+	 ; enter a room you have already joined
+	 (enter "#matrix:matrix.org")
+	 ; in both cases the room will be the current room
+
+    ; send messages in the current room
+	 (message "test")
+	 (emote   "feels great :-)")
+	 (notice  "... but that may just be me ...")
+
+	 ; cli
+	 ; this will probably change
+	 newlisp matrix.lsp send "here comes the sun"
 
 
-This starts polling the event-stream, and prints out all messages to the console.
 
 
 Branching model
 ---------------
 
-master is the development branch.
+So far master is the development branch, but this may change later.
 Other development branches may be opened.
 Once there's something release worthy, a release branch will be opened.
 

@@ -716,9 +716,9 @@ t stat(define (save-my force)
 (define (msg-indicator evt)
 	"Print message indicator for text / emote / notice"
 	(case (lookup-deep evt "msgtype")
-		("m.text" "")
-		("m.emote" (string "* " (lookup "displayname" evt) " "))
-		("m.notice" "!! ")
+		("m.text" "  ")
+		("m.emote" (string "* " (lookup "user_id" evt) " "))
+		("m.notice" "! ")
 		(true "??")))
 
 (define (filt-messages js)
