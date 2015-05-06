@@ -38,7 +38,7 @@
 (define data:data)
 (define my:my)
 
-(define (save-my force)
+t stat(define (save-my force)
 	"save my data, use force when autosave is not enabled"
 	(if (or autosave force)
 		(save *my-file* 'my)))
@@ -438,7 +438,7 @@
 			(unless (lookup "errcode" user)
 				(my "id"    (lookup "user_id" user))
 				(my "token" (lookup "access_token" user))
-				(save "my.lsp" 'my))
+				(save-my))
 			user)))
 
 (define (do-login user pass)
@@ -448,7 +448,7 @@
 			(unless (lookup "errcode" user)
 				(my "id" (lookup "user_id" user))
 				(my "token" (lookup "access_token" user))
-				(save "my.lsp" 'my))
+				(save-my))
 			user)))
 
 (define (register user pass)

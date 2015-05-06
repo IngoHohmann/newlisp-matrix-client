@@ -16,7 +16,18 @@ Some code is experimental.
 Example Usage
 -------------
     (load "matrix.lsp")
+
+    ; set homeserver to connect to, defaults to localhost
+    (set-server "matrix.org" "80" "https://")
+
+    ; register a new user, you could use login, if the user already exists
+    (register "xxx" "xxxxxx")
+    ; a file containing your access_token, among others, has been written to your current dir
+    ; on the next start, you are already logged in
+
+    ; listen for the event stream, print all messages in all rooms
     (poll-events filt-messages)
+
 
 This starts polling the event-stream, and prints out all messages to the console.
 
