@@ -340,6 +340,7 @@ t stat(define (save-my force)
 
 (define (message-json msg (type "m.text"))
 	(replace "\n" msg "\\n")
+	(replace "\"" msg "\\\"")
 	(join (list "{\"msgtype\":\"" type "\",\"body\":\"" msg "\"}")))
 
 (define (displayname-json name)
@@ -787,10 +788,16 @@ t stat(define (save-my force)
 
 ; send message from command-line
 (when (> (length (main-args)) 2)
-	(let ((arg (rest (rest (main-args)))))
-		(if
-			(set 'val (match '("send" ?) arg))    (message val)
-			(set 'val (match '("send" ? ? ) arg)) (message (val 1) (room-id (val 0)))) 
-		(exit)))
+	(let ((arg (2 (main-args))))
+		(set 'debug-me true)
+		(*** arg)
+		(check-return
+			(if
+				(set 'val (match '("send" ?) arg))    (println (message (val 0)))
+				(set 'val (match '("send" ? ? ) arg)) (message (val 1) (room-id (val 0)))
+				(set 'val (match '("send-file" ?) arg))    (println (message (read-file (val 0))))
+				(set 'val (match '("send-file" ? ? ) arg)) (message (read-file (val 1)) (room-id (val 0))))
+			(exit)
+			(exit 1))))
 
 "loaded-successfully"
