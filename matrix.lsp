@@ -786,6 +786,28 @@ t stat(define (save-my force)
 	(fn (ctx)
 		(string (my-user-id) " / " (my-room-display) "> ")))
 
+;
+; interactive usage
+;
+
+(define (interactive-mode s)
+	(if
+		(starts-with s "> ") (string "(message [text]" (2 s) "[/text])")
+		(starts-with s "* ") (string "(emote [text]" (2 s) "[/text])")
+		(starts-with s "! ") (string "(notice [text]" (2 s) "[/text])")
+		(starts-with s "+ #") (string "(join [text]" (2 s) "[/text])")
+		(starts-with s "#?") (string {(my "rooms")})
+		(starts-with s "#") (string "(enter \"" s "\")")
+		(= "q" s) (command-event newlisp-mode)
+		true s
+		))
+
+(define (newlisp-mode s)
+	s)
+
+(define (i)
+	(command-event interactive-mode))
+
 ; send message from command-line
 (when (> (length (main-args)) 2)
 	(let ((arg (2 (main-args))))
