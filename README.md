@@ -1,7 +1,7 @@
 newlisp-matrix-client
 =====================
 
-This is a client library for [matrix.org](http://matrix.org), mainly meant as the basis for bots.
+This is a client library for [matrix.org](http://matrix.org) decentralised persistent communication, mainly meant as the basis for bots.
 
 Status
 ------
