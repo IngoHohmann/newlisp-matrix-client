@@ -798,12 +798,9 @@ t stat(define (save-my force)
 		(starts-with s "+ #") (string "(join [text]" (2 s) "[/text])")
 		(starts-with s "#?") (string {(my "rooms")})
 		(starts-with s "#") (string "(enter \"" s "\")")
-		(= "q" s) (command-event newlisp-mode)
+		(= "q" s) (command-event nil)
 		true s
 		))
-
-(define (newlisp-mode s)
-	s)
 
 (define (i)
 	(command-event interactive-mode))
