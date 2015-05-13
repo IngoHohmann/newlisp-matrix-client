@@ -25,8 +25,12 @@ Example Usage
     ; a file containing your access_token, among others, has been written to your current dir
     ; on the next start, you are already logged in
 
+	 ; get a list of all joined rooms
+    (my-rooms)
+
     ; listen for the event stream, print all messages in all rooms
     (poll-events filt-messages)
+
     ; This starts polling the event-stream, and prints out all messages to the console.
     ; Use ctrl+c to stop
 
@@ -36,6 +40,7 @@ Example Usage
     ; enter a room you have already joined
     (enter "#matrix:matrix.org")
     ; in both cases the room will be the current room
+    ; for enter to work with an alias, (my-rooms) needs to have been run
 
     ; send messages in the current room
     (message "test")
