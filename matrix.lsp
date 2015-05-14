@@ -38,7 +38,7 @@
 (define data:data)
 (define my:my)
 
-t stat(define (save-my force)
+(define (save-my force)
 	"save my data, use force when autosave is not enabled"
 	(if (or autosave force)
 		(save *my-file* 'my)))
@@ -549,7 +549,7 @@ t stat(define (save-my force)
 (*** "list rooms")
 
 (define (my-rooms)
-	"list all rooms I have joined"
+	"get all rooms I have joined"
 	(my "rooms" '())
 	(check-return (initial-sync 0)
 		(begin
@@ -610,7 +610,9 @@ t stat(define (save-my force)
 	"set room as current-room"
 	(if room_id
 		(if (room-id room_id) 
-			(my "room" (room-id room_id))
+			(begin
+				(my "room" (room-id room_id))
+				(save-my))
 			(error "M_NOT_FOUND" "unable to find room"))
 		(error "M_NO_ROOM_ID" "room-id is missing")))
 
