@@ -54,12 +54,15 @@
 		(save *data-file* 'data)))
 
 (define (load-my)
+	"load my data"
 	(catch (begin (load *my-file*)(*** "my data loaded")) 'error))
 
 (define (load-settings)
+	"load settings"
 	(catch (begin (load *settings-file*)(*** "settings loaded")) 'error))
 
 (define (load-data)
+	"load data"
 	(catch (begin (load *data-file*)(*** "data loaded")) 'error))
 
 ;
@@ -78,9 +81,33 @@
 	host)
 
 (define (set-server0)
+	; TODO: delete-me
 	(settings "host" (string (settings "protocol") (settings "host-name") ":" (settings "port-id") "/" (settings "base-path")))
 	(set 'host (settings "host"))
 	(save-settings))
+
+; old versions
+(define (protocol new-prot)
+	"change the server protocol part"
+	(unless (ends-with new-prot "://")
+		(extend new-prot "://"))
+	(settings "protocol" new-prot)
+	(set-server))
+
+(define (server new-host)
+	"change the server host part"
+	(settings "host-name" new-host)
+	(set-server))
+
+(define (port-id new-port-id)
+	"change the server port-id part"
+	(settings "port-id" new-port-id)
+	(set-server))
+
+(define (base-path new-base-path)
+	"change the server api path"
+	(settings "base-path" new-base-path)
+	(set-server))
 
 ;
 ; load data
@@ -115,6 +142,7 @@
 
 (define (disp-room room_id)
 	"incomplete don't use"
+	; TODO: delete-me
 	(let ((pos (first (ref room_id (my "rooms")))))
 		(first (guard (lookup "aliases" ((my "rooms") pos))))))
 
@@ -140,27 +168,6 @@
 	(let (room (lookup "aliases" ((my "rooms") (first (ref "!KfEMRrLQmcjCxwNgXU:localhost" (my "rooms"))))))
 		(0 (find ":" room) room)))
 		
-(define (protocol new-prot)
-	"change the server protocol part"
-	(unless (ends-with new-prot "://")
-		(extend new-prot "://"))
-	(settings "protocol" new-prot)
-	(set-server))
-
-(define (server new-host)
-	"change the server host part"
-	(settings "host-name" new-host)
-	(set-server))
-
-(define (port-id new-port-id)
-	"change the server port-id part"
-	(settings "port-id" new-port-id)
-	(set-server))
-
-(define (base-path new-base-path)
-	"change the server api path"
-	(settings "base-path" new-base-path)
-	(set-server))
 
 ;
 ; Color
@@ -246,7 +253,7 @@
 		""))
 
 (define (room-id (name ""))
-	"lookup room-id from alias, alias will be extended with # and local part"
+	"lookup room-id from alias, alias will be extended with # and local part if needed"
 	(if 
 		(= "" name) ""
 		(starts-with name "!") name
@@ -267,7 +274,7 @@
 					))))
 
 (define (user-id (name ""))
-	"create a locally qualified user-id from only a local part"
+	"return a locally qualified user-id from only a local part (does not create user)"
 	(if 
 		(= "" name) ""
 		(begin
@@ -417,15 +424,19 @@
 		(join (list host function "?access_token=" (my "token")))))
 
 (define (api-get path no-access-token)
+	"calls GET on an api endpoint"
 	(return-json (get-url (api path no-access-token) 3000)))
 
 (define (api-post path (json "") no-access-token) 
+	"POSTs data on an api endpoint"
 	(return-json (post-url (api path no-access-token) json)))
 
 (define (api-put path (json "") no-access-token)
+	"PUTs data to an api endpoint"
 	(return-json (put-url (api path no-access-token) json)))
 
 (define (api-delete path (json "") no-access-token)
+	"calls DELETE on an api endpoint"
 	(return-json (delete-url (api path no-access-token) json)))
 
 ;
@@ -434,6 +445,7 @@
 (*** "Registration & login")
 
 (define (do-register user pass)
+	"register new user internal funcion"
 	(if (nil? user) 
 		(return-json (get-url (api "register")))
 		(let (user (api-post "register" (register-json user pass) true))
@@ -444,6 +456,7 @@
 			user)))
 
 (define (do-login user pass)
+	"login user internal funcion"
 	(if (nil? user) 
 		(api-get "login" true)
 		(let (user (api-post "login" (login-json user pass) true))
@@ -454,11 +467,13 @@
 			user)))
 
 (define (register user pass)
+	"register a new user - needs m.login.password to be supported by server"
 	(if (ref '("stages" ("m.login.password")) (do-register))
 		(do-register user pass)
 		(error "M_NOT_SUPPORTED" "m.login.password is not supported by server")))
 
 (define (login user pass)
+	"login user - needs m.login.password to be supported by server"
 	(if (ref "m.login.password" (do-login))
 		(do-login user pass)
 		(error "M_NOT_SUPPORTED" "m.login.password is not supported by server")))
@@ -478,12 +493,6 @@
 	(save-my)
 	(my "displayname"))
 
-(define (get-display-name user_id)
-	"get a users displayname"
-	(if user_id
-		(api-get (append "profile/" user_id "/displayname"))
-		(error "M_NO_ID" "User ID is missing")))
-
 (define (avatar url)
 	"get or set own avatar-url"
 	(if url
@@ -491,29 +500,38 @@
 		(check-return (api-get (append "profile/" (my-user-id) "/avatar_url"))
 			(my "avatar_url" (lookup "avatar_url" json)))))
 
-(define (get-avatar-url user_id)
-	"get a users avatar-url"
-	(if user_id
-		(api-get (append "profile/" user_id "/avatar_url"))
-		(error "M_NO_ID" "User ID is missing")))
-
 (define (presence state msg)
 	"get or set own presence status"
 	(if (or state msg)
 		(api-put (string "presence/" (my-user-id) "/status") (presence-json state msg))
 		(api-get (string "presence/" (my-user-id) "/status"))))
 
+(define (get-display-name user_id)
+	"get a users displayname"
+	(if user_id
+		(api-get (append "profile/" user_id "/displayname"))
+		(error "M_NO_ID" "User ID is missing")))
+
+(define (get-avatar-url user_id)
+	"get a users avatar-url"
+	(if user_id
+		(api-get (append "profile/" user_id "/avatar_url"))
+		(error "M_NO_ID" "User ID is missing")))
+
 (define (get-presence user-id)
 	"get presence status for user-id"
 	(api-get (string "presence/" user-id "/status")))
 
 (define (friends id)
+	"get list of friend"
 	(api-get (string "presence/list/" (if id id (my-user-id)))))
 
 (define (friends-invite id)
+	"add user to friends list"
 	(api-post (string "presence/list/" (my-user-id)) (friend-invite-json id)))
 
 (define (friends-drop id)
+	"remove user from friends list"
 	(api-post (string "presence/list/" (my-user-id)) (friend-drop-json id)))
 
 ;
@@ -541,9 +559,11 @@
 		(api-get (string "rooms/" room-id "/state/m.room.topic"))))
 
 (define (add-alias alias id)
+	"add an alias to a room"
 	(api-put (string "directory/room/" alias) (add-alias-json id)))
 
 (define (delete-alias alias)
+	"remove a room alias"
 	(api-delete (string "directory/room/" alias)))
 
 (*** "list rooms")
@@ -569,24 +589,6 @@
 	"return all public rooms"
 	(check-return (return-json (get-url (api "publicRooms")))
 		(set 'db:rooms (lookup "chunk" json))))
-
-(define (room-members room-id from to limit)
-	"list room members"
-	; TODO from to limit
-	(unless room-id (set 'room-id (my "room")))
-	(api-get (string "rooms/" room-id "/members")))
-
-(*** "read events")
-
-(define (initial-sync (limit 0))
-	"do an initial sync"
-	; add access-token by hand, because we already have "?limit="
-	(api-get (string "initialSync?limit=" limit "&access_token=" (my "token")) true))
-	;(api-get (string "initialSync?limit=" limit))); "&access_token=" (my-access-token)) true))
-
-(define (room-sync id (limit 0))
-	"do an initial sync inside a room"
-	(api-get (string "rooms/" id "/initialSync?limit=" limit "&access_token=" db:access_token) true))
 
 (*** "join & leave")
 
@@ -620,12 +622,23 @@
 	"invite a user to a room"
 	(api-post (string "rooms/" room-id "/invite" ) (invite-json user)))
 
+(define (members room-id)
+	"get a list of members in a room"
+	(unless room-id (set 'room-id (my "room")))
+	(api-get (string "rooms/" room-id "/members")))
+
 (*** "events & state")
 
+(define (typing (room (my "room")) (state true) (timeout 10))
+	"set typing state"
+	(api-put (string "rooms/" room "/typing/" (my "id")) (typing-json state timeout)))
+
 (define (send-event event-body event-type (room-id (my "room")))
+	"send a generic event"
 	(api-post (string "rooms/" room-id "/send/" event-type) (json-object event-body)))
 
 (define (set-state event-body event-type state-key (room-id (room-id)))
+	"send a generic state event"
 	(api-put (string "rooms/" room-id "/state/" event-type "/" state-key) (json-object event-body)))
 
 (define (send-message message (msgtype "m.text") (type "m.room.message") (room_id (my "room")) json-string)
@@ -638,13 +651,13 @@
 	(api-post (string "rooms/" room_id "/send/" type) json-string))
 
 (define (emote message (room_id (my "room")))
-	"send an m.emote message"
+	"send an m.emote message to current or given room"
 	;(replace message "\n" "\\n")
 	(unless room_id (set 'room_id (my "room")))
 	(send-message message "m.emote" "m.room.message" room_id))
 
 (define (notice message (room_id (my "room")))
-	"send an m.emote message"
+	"send an m.notice message to current or given room"
 	;(replace message "\n" "\\n")
 	(unless room_id (set 'room_id (my "room")))
 	(send-message message "m.notice" "m.room.message" room_id))
@@ -655,6 +668,18 @@
 	(unless room_id (set 'room_id (my "room")))
 	(send-message message "m.text" "m.room.message" room_id))
 	;(api-post (append "rooms/" room_id "/send/m.room.message") (message-json message)))
+
+(*** "read events")
+
+(define (initial-sync (limit 0))
+	"do an initial sync"
+	; add access-token by hand, because we already have "?limit="
+	(api-get (string "initialSync?limit=" limit "&access_token=" (my "token")) true))
+	;(api-get (string "initialSync?limit=" limit))); "&access_token=" (my-access-token)) true))
+
+(define (room-sync id (limit 0))
+	"do an initial sync inside a room"
+	(api-get (string "rooms/" id "/initialSync?limit=" limit "&access_token=" db:access_token) true))
 
 (define (messages room-id from to limit backwards)
 	"read message stream, return m.room.message messages"
@@ -686,16 +711,11 @@
 	(unless room-id (set 'room-id (my "room")))
 	(api-get (string "rooms/" room-id "/state")))
 
-(define (members room-id)
-	(unless room-id (set 'room-id (my "room")))
-	(api-get (string "rooms/" room-id "/members")))
-
-(define (typing (room (my "room")) (state true) (timeout 10))
-	(api-put (string "rooms/" room "/typing/" (my "id")) (typing-json state timeout)))
 
 (*** "polling")
 
 (define (events from timeout)
+	"get a one time list of events"
 	(let ((query ""))
 		(if from 
 			(set 'query (string "&from=" from)))
@@ -765,6 +785,8 @@
 (***)
 
 (define (listen room from timeout)
+	"listen to events in a room"
+	; TODO: delete-me
 	(let ((query ""))
 		(if from 
 			(set 'query (string "&from=" from)))
@@ -773,11 +795,6 @@
 		(println query)
 		(api-get "events")))
 
-(***)
-
-(define (poll)
-	(dotimes (i 5)
-		(println (events))))
 
 ;
 ; set the prompt to show user / room
