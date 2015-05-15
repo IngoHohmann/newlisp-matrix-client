@@ -47,6 +47,18 @@ Example Usage
     (emote   "feels great :-)")
     (notice  "... but that may just be me ...")
 
+	 ; the fast way ...
+	 (i)
+	 ; this opens an interactive send repl
+	 ; and then use 1 letter markers
+	 > A message
+	 ! a notice
+	 * an emote
+
+	 ; you don't remember the arguments?
+	 (help message)
+	 ; prints a help message for function message
+
     ; cli
     ; this will probably change
     newlisp matrix.lsp send "here comes the sun"
